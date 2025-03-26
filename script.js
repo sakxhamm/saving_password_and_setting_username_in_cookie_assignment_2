@@ -3,92 +3,86 @@ const MAX = 999;
 const pinInput = document.getElementById('pin');
 const sha256HashView = document.getElementById('sha256-hash');
 const resultView = document.getElementById('result');
+const checkButton = document.getElementById('check');
 
-// a function to store in the local storage
+// Function to store in localStorage
 function store(key, value) {
   localStorage.setItem(key, value);
 }
 
-// a function to retrieve from the local storage
+// Function to retrieve from localStorage
 function retrieve(key) {
   return localStorage.getItem(key);
 }
 
-function getRandomArbitrary(min, max) {
-  let cached;
-  cached = Math.random() * (max - min) + min;
-  cached = Math.floor(cached);
-  return cached;
+// Generate a random 3-digit number
+function getRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// a function to clear the local storage
-function clear() {
+// Clear localStorage (for debugging)
+function clearStorage() {
   localStorage.clear();
 }
 
-// a function to generate sha256 hash of the given string
+// Function to generate SHA256 hash
 async function sha256(message) {
-  // encode as UTF-8
   const msgBuffer = new TextEncoder().encode(message);
-
-  // hash the message
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-
-  // convert ArrayBuffer to Array
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-
-  // convert bytes to hex string
-  const hashHex = hashArray
+  return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
-  return hashHex;
 }
 
-async function getSHA256Hash() {
-  let cached = retrieve('sha256');
-  if (cached) {
-    return cached;
+// Generate & store SHA256 hash for a random 3-digit number
+async function generateHash() {
+  let storedHash = retrieve('sha256');
+  let storedPin = retrieve('pin');
+
+  if (!storedHash || !storedPin) {
+    let pin = getRandomNumber(MIN, MAX).toString();
+    let hash = await sha256(pin);
+
+    store('sha256', hash);
+    store('pin', pin);
+    storedHash = hash;
   }
 
-  cached = await sha256(getRandomArbitrary(MIN, MAX));
-  store('sha256', cached);
-  return cached;
+  sha256HashView.innerHTML = storedHash; // Display the hash
 }
 
-async function main() {
-  sha256HashView.innerHTML = 'Calculating...';
-  const hash = await getSHA256Hash();
-  sha256HashView.innerHTML = hash;
-}
+// Validate user's guess
+async function checkGuess() {
+  const userInput = pinInput.value;
 
-async function test() {
-  const pin = pinInput.value;
-
-  if (pin.length !== 3) {
-    resultView.innerHTML = '💡 not 3 digits';
+  // Ensure input is exactly 3 digits
+  if (userInput.length !== 3) {
+    resultView.innerHTML = '⚠️ Enter a 3-digit number!';
     resultView.classList.remove('hidden');
     return;
   }
 
-  const sha256HashView = document.getElementById('sha256-hash');
-  const hasedPin = await sha256(pin);
+  const userHash = await sha256(userInput);
+  const storedHash = retrieve('sha256');
 
-  if (hasedPin === sha256HashView.innerHTML) {
-    resultView.innerHTML = '🎉 success';
-    resultView.classList.add('success');
+  if (userHash === storedHash) {
+    resultView.innerHTML = '🎉 Success! You found the number!';
+    resultView.style.backgroundColor = '#28a745';
   } else {
-    resultView.innerHTML = '❌ failed';
+    resultView.innerHTML = '❌ Incorrect. Try again!';
+    resultView.style.backgroundColor = '#dc3545';
   }
+
   resultView.classList.remove('hidden');
 }
 
-// ensure pinInput only accepts numbers and is 3 digits long
+// Ensure input only allows numbers and is 3 digits long
 pinInput.addEventListener('input', (e) => {
-  const { value } = e.target;
-  pinInput.value = value.replace(/\D/g, '').slice(0, 3);
+  pinInput.value = e.target.value.replace(/\D/g, '').slice(0, 3);
 });
 
-// attach the test function to the button
-document.getElementById('check').addEventListener('click', test);
+// Attach the check function to the button
+checkButton.addEventListener('click', checkGuess);
 
-main();
+// Initialize
+generateHash();

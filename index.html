@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Finding the SHA256 hash</title>
+    <title>Finding the SHA256 Hash</title>
     <style>
       body {
         display: flex;
@@ -13,7 +13,6 @@
         height: 100vh;
         background-color: #fffaff;
       }
-      /* wrapper */
       #wrapper {
         display: flex;
         flex-direction: column;
@@ -22,7 +21,6 @@
         border: 3px solid #0a2463;
         padding: 16px;
       }
-      /* sha256-hash */
       #sha256-hash {
         background-color: #2C76A7;
         padding: 16px;
@@ -35,8 +33,6 @@
         display: block;
         margin-bottom: 8px;
       }
-
-      /* user-input */
       #user-input {
         display: flex;
         flex-direction: row;
@@ -44,36 +40,24 @@
         justify-content: center;
         margin-top: 16px;
       }
-
       #user-input input {
         padding: 8px;
-        border-radius: none;
         border: 3px solid #0a2463;
         margin-right: 8px;
       }
-
-      #user-input input:focus {
-        outline: none;
-      }
-
       #user-input button {
         padding: 8px;
-        border-radius: none;
         border: 3px solid #0a2463;
         background-color: #2C76A7;
         color: #fffaff;
         font-weight: bold;
       }
-
-      /* result div */
       #result {
         margin-top: 16px;
         background-color: #3e92cc;
         padding: 8px;
-        border-radius: none;
         color: #fffaff;
       }
-
       .hidden {
         display: none;
       }
@@ -83,7 +67,7 @@
     <div id="wrapper">
       <span id="sha256-hash"></span>
       <div id="user-input">
-        <input type="text" id="pin" />
+        <input type="text" id="pin" placeholder="Enter 3-digit number" />
         <button id="check">Check</button>
       </div>
       <div id="result" class="hidden"></div>
